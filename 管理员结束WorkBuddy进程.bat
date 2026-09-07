@@ -1,75 +1,75 @@
 @echo off
-chcp 65001 >nul
+chcp 936 >nul
 setlocal
 
-:: æœ¬è„šæœ¬åªè´Ÿè´£æ¸…ç† WorkBuddy / WorkDaddyï¼Œä¸ä¼šå¯åŠ¨å®‰è£…å™¨ã€‚
-:: éœ€è¦ç®¡ç†å‘˜æƒé™ï¼›æ™®é€šåŒå‡»æ—¶ä¼šè¯·æ±‚ä¸€æ¬¡ UAC ææƒã€‚
+:: ±¾½Å±¾Ö»¸ºÔðÇåÀí WorkBuddy / WorkDaddy£¬²»»áÆô¶¯°²×°Æ÷¡£
+:: ÐèÒª¹ÜÀíÔ±È¨ÏÞ£»ÆÕÍ¨Ë«»÷Ê±»áÇëÇóÒ»´Î UAC ÌáÈ¨¡£
 if /I "%~1"=="elevated" goto :RUN
 net session >nul 2>&1
 if %errorlevel%==0 goto :RUN
 
-echo æ­£åœ¨è¯·æ±‚ç®¡ç†å‘˜æƒé™ï¼Œä»…ç”¨äºŽç»“æŸ WorkBuddy / WorkDaddy è¿›ç¨‹...
+echo ÕýÔÚÇëÇó¹ÜÀíÔ±È¨ÏÞ£¬½öÓÃÓÚ½áÊø WorkBuddy / WorkDaddy ½ø³Ì...
 powershell -NoProfile -Command "Start-Process -FilePath '%~f0' -ArgumentList 'elevated' -Verb RunAs"
 exit /b
 
 :RUN
-title ç®¡ç†å‘˜æ¸…ç† WorkBuddy / WorkDaddy è¿›ç¨‹
+title ¹ÜÀíÔ±ÇåÀí WorkBuddy / WorkDaddy ½ø³Ì
 echo ==========================================================
-echo   ç®¡ç†å‘˜æ¸…ç†è„šæœ¬ï¼ˆè‡ªåŠ¨æ£€æŸ¥ UACï¼Œåªç»“æŸè¿›ç¨‹ï¼‰
+echo   ¹ÜÀíÔ±ÇåÀí½Å±¾£¨×Ô¶¯¼ì²é UAC£¬Ö»½áÊø½ø³Ì£©
 echo ==========================================================
 echo.
-echo æ­£åœ¨æ£€æŸ¥ UAC å’Œå†…ç½® Administrator é…ç½®...
+echo ÕýÔÚ¼ì²é UAC ºÍÄÚÖÃ Administrator ÅäÖÃ...
 powershell -NoProfile -Command "$p=Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -ErrorAction SilentlyContinue; $id=[Security.Principal.WindowsIdentity]::GetCurrent(); if($null -eq $p -or $p.EnableLUA -ne 1){exit 10}; if($id.User.Value -match '-500$' -and $p.FilterAdministratorToken -ne 1){exit 11}; exit 0"
 if %errorlevel%==11 goto :FILTER_OFF
 if %errorlevel%==10 goto :UAC_OFF
 if not %errorlevel%==0 goto :POLICY_READ_FAIL
-echo [OK] UAC/LUA å·²å¼€å¯ï¼Œå½“å‰è´¦æˆ·æƒé™é…ç½®å¯ç”¨ã€‚
+echo [OK] UAC/LUA ÒÑ¿ªÆô£¬µ±Ç°ÕË»§È¨ÏÞÅäÖÃ¿ÉÓÃ¡£
 echo.
 goto :CLEAN
 
 :UAC_OFF
 echo.
-echo [!] æ£€æµ‹åˆ° UAC/LUA å·²å…³é—­ã€‚
-echo     WorkDaddy å®‰è£…å™¨è¦æ±‚ UAC å¼€å¯ï¼›æ˜¯å¦çŽ°åœ¨è‡ªåŠ¨å¼€å¯ï¼Ÿ
-choice /C YN /N /M "å¯ç”¨ UACï¼Ÿ[Y/N]ï¼š"
+echo [!] ¼ì²âµ½ UAC/LUA ÒÑ¹Ø±Õ¡£
+echo     WorkDaddy °²×°Æ÷ÒªÇó UAC ¿ªÆô£»ÊÇ·ñÏÖÔÚ×Ô¶¯¿ªÆô£¿
+choice /C YN /N /M "ÆôÓÃ UAC£¿[Y/N]£º"
 if errorlevel 2 exit /b 2
 powershell -NoProfile -Command "New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name EnableLUA -PropertyType DWord -Value 1 -Force | Out-Null"
-echo [OK] UAC å·²å¼€å¯ã€‚è¯·é‡å¯ Windows åŽé‡æ–°è¿è¡Œè¿™ä¸¤ä¸ªè„šæœ¬ã€‚
+echo [OK] UAC ÒÑ¿ªÆô¡£ÇëÖØÆô Windows ºóÖØÐÂÔËÐÐÕâÁ½¸ö½Å±¾¡£
 pause
 exit /b 2
 
 :FILTER_OFF
 echo.
-echo [!] æ£€æµ‹åˆ°å½“å‰æ˜¯å†…ç½® Administratorï¼Œä¸” UAC åˆ†ç¦»ä»¤ç‰Œæœªå¼€å¯ã€‚
-echo     å³ä½¿ UAC æ»‘å—æ­£å¸¸ï¼Œæ™®é€šåŒå‡»ä¹Ÿå¯èƒ½ä»æ˜¯é«˜æƒé™ã€‚
-echo     æ˜¯å¦çŽ°åœ¨è‡ªåŠ¨è®¾ç½® FilterAdministratorToken=1ï¼Ÿ
-choice /C YN /N /M "å¯ç”¨åˆ†ç¦»ä»¤ç‰Œï¼Ÿ[Y/N]ï¼š"
+echo [!] ¼ì²âµ½µ±Ç°ÊÇÄÚÖÃ Administrator£¬ÇÒ UAC ·ÖÀëÁîÅÆÎ´¿ªÆô¡£
+echo     ¼´Ê¹ UAC »¬¿éÕý³££¬ÆÕÍ¨Ë«»÷Ò²¿ÉÄÜÈÔÊÇ¸ßÈ¨ÏÞ¡£
+echo     ÊÇ·ñÏÖÔÚ×Ô¶¯ÉèÖÃ FilterAdministratorToken=1£¿
+choice /C YN /N /M "ÆôÓÃ·ÖÀëÁîÅÆ£¿[Y/N]£º"
 if errorlevel 2 exit /b 2
 powershell -NoProfile -Command "New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name FilterAdministratorToken -PropertyType DWord -Value 1 -Force | Out-Null"
-echo [OK] åˆ†ç¦»ä»¤ç‰Œå·²è®¾ç½®ã€‚è¯·é‡å¯ Windows åŽé‡æ–°è¿è¡Œè¿™ä¸¤ä¸ªè„šæœ¬ã€‚
+echo [OK] ·ÖÀëÁîÅÆÒÑÉèÖÃ¡£ÇëÖØÆô Windows ºóÖØÐÂÔËÐÐÕâÁ½¸ö½Å±¾¡£
 pause
 exit /b 2
 
 :POLICY_READ_FAIL
 echo.
-echo [!] æ— æ³•è¯»å– UAC é…ç½®ï¼Œå·²åœæ­¢æ¸…ç†ã€‚
-echo     è¯·ç¡®è®¤ç³»ç»Ÿ PowerShell å¯ç”¨ï¼Œç„¶åŽé‡è¯•ã€‚
+echo [!] ÎÞ·¨¶ÁÈ¡ UAC ÅäÖÃ£¬ÒÑÍ£Ö¹ÇåÀí¡£
+echo     ÇëÈ·ÈÏÏµÍ³ PowerShell ¿ÉÓÃ£¬È»ºóÖØÊÔ¡£
 pause
 exit /b 3
 
 :CLEAN
-echo æ­£åœ¨ç»“æŸ WorkBuddy åŠå…¶å­è¿›ç¨‹...
+echo ÕýÔÚ½áÊø WorkBuddy ¼°Æä×Ó½ø³Ì...
 taskkill /IM WorkBuddy.exe /F /T
 taskkill /IM WorkBuddyAI.exe /F /T
 echo.
-echo æ­£åœ¨ç»“æŸ WorkDaddy ç”Ÿå‘½å‘¨æœŸè¿›ç¨‹...
+echo ÕýÔÚ½áÊø WorkDaddy ÉúÃüÖÜÆÚ½ø³Ì...
 taskkill /IM WorkDaddy.exe /F /T
 taskkill /IM WorkDaddyLauncher.exe /F /T
 echo.
-echo æ­£åœ¨æŸ¥æ‰¾å‘½ä»¤è¡Œä¸­æ˜Žç¡®å±žäºŽ WorkDaddy / WorkBuddy çš„ Node åŽå°è¿›ç¨‹...
-powershell -NoProfile -Command "$ps = Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object { $_.CommandLine -match '(?i)workdaddy|workbuddy' }; if ($ps) { $ps | ForEach-Object { Write-Host ('ç»“æŸ PID ' + $_.ProcessId + ': ' + $_.CommandLine); Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue } } else { Write-Host 'æœªå‘çŽ°åŒ¹é…çš„ Node åŽå°è¿›ç¨‹ã€‚' }"
+echo ÕýÔÚ²éÕÒÃüÁîÐÐÖÐÃ÷È·ÊôÓÚ WorkDaddy / WorkBuddy µÄ Node ºóÌ¨½ø³Ì...
+powershell -NoProfile -Command "$ps = Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object { $_.CommandLine -match '(?i)workdaddy|workbuddy' }; if ($ps) { $ps | ForEach-Object { Write-Host ('½áÊø PID ' + $_.ProcessId + ': ' + $_.CommandLine); Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue } } else { Write-Host 'Î´·¢ÏÖÆ¥ÅäµÄ Node ºóÌ¨½ø³Ì¡£' }"
 echo.
-echo ç­‰å¾… 2 ç§’å¹¶ç²¾ç¡®å¤æ ¸...
+echo µÈ´ý 2 Ãë²¢¾«È·¸´ºË...
 timeout /t 2 >nul
 set "LEFT=0"
 tasklist /FI "IMAGENAME eq WorkBuddy.exe" 2>nul | findstr /I /C:"WorkBuddy.exe" >nul && set "LEFT=1"
@@ -78,20 +78,20 @@ tasklist /FI "IMAGENAME eq WorkDaddy.exe" 2>nul | findstr /I /C:"WorkDaddy.exe" 
 tasklist /FI "IMAGENAME eq WorkDaddyLauncher.exe" 2>nul | findstr /I /C:"WorkDaddyLauncher.exe" >nul && set "LEFT=1"
 if "%LEFT%"=="1" (
   echo.
-  echo [!] ä»æœ‰ç›®æ ‡è¿›ç¨‹å­˜åœ¨ï¼š
+  echo [!] ÈÔÓÐÄ¿±ê½ø³Ì´æÔÚ£º
   tasklist /FI "IMAGENAME eq WorkBuddy.exe"
   tasklist /FI "IMAGENAME eq WorkBuddyAI.exe"
   tasklist /FI "IMAGENAME eq WorkDaddy.exe"
   tasklist /FI "IMAGENAME eq WorkDaddyLauncher.exe"
   echo.
-  echo å¯èƒ½æ˜¯è¿›ç¨‹æ­£åœ¨è‡ªåŠ¨é‡å¯ï¼Œæˆ–è¢«å®‰å…¨è½¯ä»¶ä¿æŠ¤ã€‚è¯·å…ˆå…³é—­ WorkBuddy è‡ªåŠ¨å¯åŠ¨ï¼Œ
-  echo å†è¿è¡Œæœ¬è„šæœ¬ï¼›ä¸è¦åœ¨è¿™ä¸ªçª—å£é‡Œå¯åŠ¨å®‰è£…å™¨ã€‚
+  echo ¿ÉÄÜÊÇ½ø³ÌÕýÔÚ×Ô¶¯ÖØÆô£¬»ò±»°²È«Èí¼þ±£»¤¡£ÇëÏÈ¹Ø±Õ WorkBuddy ×Ô¶¯Æô¶¯£¬
+  echo ÔÙÔËÐÐ±¾½Å±¾£»²»ÒªÔÚÕâ¸ö´°¿ÚÀïÆô¶¯°²×°Æ÷¡£
   pause
   exit /b 1
 )
-echo [OK] ç›®æ ‡è¿›ç¨‹å·²æ¸…ç†å®Œæˆã€‚
-echo çŽ°åœ¨è¯·å…³é—­æœ¬çª—å£ï¼Œå†ç›´æŽ¥åŒå‡»â€œä¸€é”®å®‰è£…WorkDaddy.batâ€ã€‚
-echo åŽä¸€ä¸ªè„šæœ¬å¿…é¡»ä»¥æ™®é€šæœªææƒæƒé™è¿è¡Œã€‚
-echo å¦‚æžœåªå®‰è£…ä¸€ä¸ªç‰ˆæœ¬ï¼Œå®‰è£…å¯åŠ¨å™¨ä¼šè®©ä½ é€‰æ‹©å›½å†…ç‰ˆæˆ– AI ç‰ˆã€‚
+echo [OK] Ä¿±ê½ø³ÌÒÑÇåÀíÍê³É¡£
+echo ÏÖÔÚÇë¹Ø±Õ±¾´°¿Ú£¬ÔÙÖ±½ÓË«»÷¡°Ò»¼ü°²×°WorkDaddy.bat¡±¡£
+echo ºóÒ»¸ö½Å±¾±ØÐëÒÔÆÕÍ¨Î´ÌáÈ¨È¨ÏÞÔËÐÐ¡£
+echo Èç¹ûÖ»°²×°Ò»¸ö°æ±¾£¬°²×°Æô¶¯Æ÷»áÈÃÄãÑ¡Ôñ¹úÄÚ°æ»ò AI °æ¡£
 pause
 exit /b 0
